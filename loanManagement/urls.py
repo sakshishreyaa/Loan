@@ -7,8 +7,12 @@ from .views import (
     UserLoginView,
     UserListView,
     UserDetailView,
-    LoanView,
-    LoanDetailView,
+    #LoanView,
+    CustomerLoanView,
+    AgentLoanView,
+    AgentLoanDetailView,
+    AdminLoanView,
+    AdminLoanDetailView
 )
 
 urlpatterns = [
@@ -18,6 +22,9 @@ urlpatterns = [
     path('login', UserLoginView.as_view(), name='login'),
     path('users', UserListView.as_view(), name='users'),
     path('users/<int:pk>', UserDetailView.as_view()),
-    path('loan', LoanView.as_view(), name='loans'),
-    path('loan/<int:pk>', LoanDetailView.as_view() ),
+    path('customer/loan', CustomerLoanView.as_view() ),
+    path('agent/loan', AgentLoanView.as_view() ),
+    path('agent/loan-detail/<int:pk>', AgentLoanDetailView.as_view() ),
+    path('admin/loan', AdminLoanView.as_view() ),
+    path('admin/loan-detail/<int:pk>', AdminLoanDetailView.as_view() ),
 ]

@@ -139,14 +139,36 @@ class UserDetailView(APIView):
             return Response(response, status=status_code)
         
         
-class LoanView(APIView):
+class CustomerLoanView(APIView):
     #serializer_class=LoanSerializer
     permission_classes=(IsAuthenticated,)
+    serializer_class=LoanCustomerSerializer
     
 
     def get(self,request):
         user=request.user
-        if user.role!=3:
+        if user.role==3:
+    
+            #cust_id=User.objects.get(user.id)
+            loans=Loan.objects.filter(customerId=user.id)
+            serializer = self.serializer_class(loans, many=True)
+            response = {
+                'success': True,
+                'status_code': status.HTTP_200_OK,
+                'message': 'Successfully fetched loans',
+                'loans': serializer.data
+
+            }
+            return Response(response, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class AgentLoanView(APIView):
+    permission_classes=(IsAuthenticated,)
+    serializer_class=LoanAgentSerializer
+
+    def get(self,request):
+        user=request.user
+        if user.role==2:
             loans = Loan.objects.all()
             serializer = LoanAgentSerializer(loans, many=True)
             response = {
@@ -157,23 +179,33 @@ class LoanView(APIView):
 
             }
             return Response(response, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+    def post(self,request):
+        user=request.user
+        if user.role==2:
+            serializer=self.serializer_class(data=request.data)
+            valid=serializer.is_valid(raise_exception=True)
 
-        else:
-            #cust_id=User.objects.get(user.id)
-            loans=Loan.objects.filter(customerId=user.id)
-            serializer = LoanCustomerSerializer(loans, many=True)
-            response = {
+            if valid:
+                serializer.save()
+                status_code=status.HTTP_200_OK
+                response = {
                 'success': True,
-                'status_code': status.HTTP_200_OK,
-                'message': 'Successfully fetched loans',
-                'loans': serializer.data
+                'status_code': status_code,
+                'message': 'Successfully created loan request',
+                'loan': serializer.data
 
             }
-            return Response(response, status=status.HTTP_200_OK)
+                return Response(response,status=status_code)
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+            
+        
 
-class LoanDetailView(APIView):
+class AgentLoanDetailView(APIView):
     permission_classes=(IsAuthenticated,)
-    get_ser
+    serializer_class=LoanAgentSerializer
 
     def get_object(self,pk):
         try:
@@ -183,72 +215,94 @@ class LoanDetailView(APIView):
 
     def get(self,request,pk):
         user=request.user
-        if user.role!=3:
+        if user.role==2:
             try:
                 loans = Loan.objects.get(pk=pk)
                 serializer = self.serializer_class(loans)
                 response = {
                     'success': True,
                     'status_code': status.HTTP_200_OK,
-                    'message': 'Successfully fetched loans',
+                    'message': 'Successfully fetched loan',
                     'loans': serializer.data
 
                 }
                 return Response(response, status=status.HTTP_200_OK)
             except Loan.DoesNotExist:
                 raise Http404
+        return Response(response, status=status.HTTP_401_UNAUTHORIZED)
 
-        else:
-            response={
-                'success': False,
-                'status_code': status.HTTP_405_METHOD_NOT_ALLOWED,
-                'message': 'You are not authorized to make this request',
-                
-            }
-
-            return Response(response, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-
-    def post(self,request):
+    def put(self, request, pk):
         user=request.user
-        if user.role==1: 
-            serializer = LoanAdminSerializer(data=request.data)
+        if user.role==2:
+            data = self.get_object(pk)
+            serializer = self.serializer_class(data,data=request.data)
             valid = serializer.is_valid(raise_exception=True)
-
             if valid:
+
                 serializer.save()
-                status_code = status.HTTP_201_CREATED
+                status_code = status.HTTP_202_ACCEPTED
 
                 response = {
                     'success': True,
                     'statusCode': status_code,
-                    'message': 'Loan status updated!',
-                    'loan': serializer.data
+                    'message': 'Loan details successfully updated!',
+                    'user': serializer.data
                 }
-
                 return Response(response, status=status_code)
-        elif user.role==2:
-            serializer = LoanAgentSerializer(data=request.data)
-            valid = serializer.is_valid(raise_exception=True)
-            if valid:
-                serializer.save()
-                status_code = status.HTTP_201_CREATED
-
-                response = {
-                    'success': True,
-                    'statusCode': status_code,
-                    'message': 'Loan request created!',
-                    'loan': serializer.data
-                }
-
-                return Response(response, status=status_code)
-        else:
-            serializer=LoanCustomerSerializer(data=request.data)
-            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
             
+
+
+class AdminLoanView(APIView):
+    permission_classes=(IsAuthenticated,)
+    serializer_class=LoanAdminSerializer
+
+    def get(self,request):
+        user=request.user
+        if user.role==1:
+    
+            loans=Loan.objects.all()
+            serializer=self.serializer_class(loans,many=True)
+            response = {
+                'success': True,
+                'status_code': status.HTTP_200_OK,
+                'message': 'Successfully fetched loan',
+                'loans': serializer.data
+
+            }
+            return Response(response,status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class AdminLoanDetailView(APIView):
+    permission_classes=(IsAuthenticated,)
+    serializer_class=LoanAdminSerializer
+
+    def get_object(self,pk):
+        try:
+            return Loan.objects.get(pk=pk)
+        except Loan.DoesNotExist:
+            raise Http404
+
+    def get(self,request,pk):
+        user=request.user
+        if user.role==1:
+            try:
+                loans = Loan.objects.get(pk=pk)
+                serializer = self.serializer_class(loans)
+                response = {
+                    'success': True,
+                    'status_code': status.HTTP_200_OK,
+                    'message': 'Successfully fetched loan',
+                    'loans': serializer.data
+
+                }
+                return Response(response, status=status.HTTP_200_OK)
+            except Loan.DoesNotExist:
+                raise Http404
+        return Response(response, status=status.HTTP_401_UNAUTHORIZED)
 
     def put(self, request, pk):
         user=request.user
@@ -268,9 +322,9 @@ class LoanDetailView(APIView):
                     'user': serializer.data
                 }
                 return Response(response, status=status_code)
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-            
 
-
-
+                

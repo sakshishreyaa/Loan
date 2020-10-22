@@ -4,6 +4,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate 
 from django.contrib.auth.models import update_last_login
 
+
 class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -59,10 +60,7 @@ class UserLoginSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = (
-            'email',
-            'role','first_name','last_name'
-        )
+        fields = '__all__'
 
         # def update(self, instance, validated_data):
         #     """ 
@@ -78,7 +76,7 @@ class LoanAgentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Loan
-        fields="__all__"
+        fields='__all__'
         read_only_fields=['AgentId','state']
 
 
@@ -95,5 +93,5 @@ class LoanAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Loan
         fields='__all__'
-        read_only_fields=['id','customerId','agentId','amount_required','tenure','interest']
+        read_only_fields=['customerId','agentId','amount_required','tenure','interest']
         
