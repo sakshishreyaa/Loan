@@ -1,4 +1,4 @@
-from .models import User
+from .models import User,Loan
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate 
@@ -56,10 +56,44 @@ class UserLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Invalid login credentials")
 
 
-class UserListSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
             'email',
-            'role'
+            'role','first_name','last_name'
         )
+
+        # def update(self, instance, validated_data):
+        #     """ 
+        #     Update and return an existing user instance, given the validated data.
+        #     """
+        #     instance.email = validated_data.get('email', instance.email)
+        #     instance.role = validated_data.get('role', instance.role)
+        #     instance.first_name = validated_data.get('first_name', instance.first_name)
+        #     instance.last_name = validated_data.get('last_name', instance.last_name)
+        #     instance.save()
+        #     return instance
+class LoanAgentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Loan
+        fields="__all__"
+        read_only_fields=['AgentId','state']
+
+
+
+class LoanCustomerSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Loan
+        fields=['customerId','agentId','amount_required','tenure','interest','state']
+        #read_only_fields=['customerId','agentId','amount_required','tenure','interest','state']
+
+class LoanAdminSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Loan
+        fields='__all__'
+        read_only_fields=['id','customerId','agentId','amount_required','tenure','interest']
+        

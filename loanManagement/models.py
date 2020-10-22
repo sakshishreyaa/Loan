@@ -45,3 +45,22 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+
+class Loan(models.Model):
+    STATES=[
+        ('New', 'New'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+
+    ]
+    customerId=models.ForeignKey(User,on_delete=models.CASCADE,related_name='customer')
+    agentId=models.ForeignKey(User,on_delete=models.CASCADE,related_name='agent')
+    state=models.CharField(max_length=10,choices=STATES,default='New')
+    amount_required = models.IntegerField()
+    tenure=models.IntegerField()
+    interest=models.FloatField()
+
+    def __str__(self):
+        return self.customerId
+
+
