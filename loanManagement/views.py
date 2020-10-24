@@ -175,7 +175,7 @@ class AgentLoanView(APIView):
                 'success': True,
                 'status_code': status.HTTP_200_OK,
                 'message': 'Successfully fetched loans',
-                'loans': serializer.data
+                'loans': serializer.data,
 
             }
             return Response(response, status=status.HTTP_200_OK)
@@ -184,17 +184,19 @@ class AgentLoanView(APIView):
     def post(self,request):
         user=request.user
         if user.role==2:
-            serializer=self.serializer_class(data=request.data)
+            serializer=self.serializer_class(data=request.data,context={'request':request})
             valid=serializer.is_valid(raise_exception=True)
 
             if valid:
-                serializer.save()
+                serializer.save(agentId=request.user)
                 status_code=status.HTTP_200_OK
                 response = {
                 'success': True,
                 'status_code': status_code,
                 'message': 'Successfully created loan request',
-                'loan': serializer.data
+                'loan': serializer.data,
+                
+                
 
             }
                 return Response(response,status=status_code)
@@ -231,25 +233,28 @@ class AgentLoanDetailView(APIView):
                 raise Http404
         return Response(response, status=status.HTTP_401_UNAUTHORIZED)
 
-    def put(self, request, pk):
+    def patch(self, request, pk):
         user=request.user
         if user.role==2:
-            data = self.get_object(pk)
-            serializer = self.serializer_class(data,data=request.data)
-            valid = serializer.is_valid(raise_exception=True)
-            if valid:
+            loan = self.get_object(pk)
+            if loan.state=="New":
+                serializer = self.serializer_class(loan,data=request.data,partial=True)
+                valid = serializer.is_valid(raise_exception=True)
+                if valid:
 
-                serializer.save()
-                status_code = status.HTTP_202_ACCEPTED
+                    serializer.save()
+                    status_code = status.HTTP_202_ACCEPTED
 
-                response = {
-                    'success': True,
-                    'statusCode': status_code,
-                    'message': 'Loan details successfully updated!',
-                    'user': serializer.data
-                }
-                return Response(response, status=status_code)
-            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+                    response = {
+                        'success': True,
+                        'statusCode': status_code,
+                        'message': 'Loan details successfully updated!',
+                        'user': serializer.data,
+                        
+                    }
+                    return Response(response, status=status_code)
+                return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response({ 'message' : "Loan cannot be edited after being approved or rejected"},status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 

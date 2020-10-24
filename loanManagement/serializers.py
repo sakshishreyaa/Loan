@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate 
 from django.contrib.auth.models import update_last_login
+from rest_framework.fields import CurrentUserDefault
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -73,11 +74,27 @@ class UserSerializer(serializers.ModelSerializer):
         #     instance.save()
         #     return instance
 class LoanAgentSerializer(serializers.ModelSerializer):
-
+    agent_name=serializers.SerializerMethodField('get_agent_name')
+    customer_name=serializers.SerializerMethodField('get_customer_name')
+    
     class Meta:
         model = Loan
         fields='__all__'
-        read_only_fields=['AgentId','state']
+        read_only_fields=['agentId','state'] 
+
+    def get_agent_name(self,obj):
+        pk=obj.agentId_id
+        data=User.objects.get(pk=pk)
+        name=data.first_name+data.last_name
+        return name   
+    def get_customer_name(self,obj):
+        pk=obj.customerId_id
+        data=User.objects.get(pk=pk)
+        name=data.first_name+data.last_name
+        return name
+    
+
+
 
 
 

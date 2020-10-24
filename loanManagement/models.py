@@ -53,9 +53,8 @@ class Loan(models.Model):
         ('Rejected', 'Rejected'),
 
     ]
-    customerId=models.ForeignKey(User,on_delete=models.CASCADE,to_field='id',related_name='customer')
-    agentId=models.ForeignKey(User,on_delete=models.CASCADE,to_field='id',related_name='agent')
-    email=models.ForeignKey(User,on_delete=models.CASCADE,blank=True,null=True)
+    customerId=models.ForeignKey(User,on_delete=models.CASCADE,related_name='customer')
+    agentId=models.ForeignKey(User,on_delete=models.CASCADE,related_name='agent')
     state=models.CharField(max_length=10,choices=STATES,default='New')
     amount_required = models.IntegerField()
     tenure=models.IntegerField()
@@ -63,5 +62,4 @@ class Loan(models.Model):
 
     def __str__(self):
         return self.customerId
-
 
