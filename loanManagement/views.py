@@ -334,54 +334,72 @@ class AdminLoanDetailView(APIView):
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-# class AgentLoanView(APIView):
-#     permission_classes=(IsAuthenticated,)
-#     serializer_class=LoanAgentSerializer
+class AdminAgentFilterView(APIView):
+    permission_classes=(IsAuthenticated,)
+    serializer_class=LoanAgentSerializer
 
-#     def get(self,request,filtr,var):
-#         user=request.user
-#         if user.role!=3:
-#             if filtr == "state":
-#                 loans = Loan.objects.filter(state=var)
-#             elif filtr == "date_of_creation":
-#                 loans=Loan.objects.filter(date_created=datetime.datetime.strptime(var, "%d%m%Y").date())
-#             elif filtr == "date_of_modification":
-#                 loans=Loan.objects.filter(date_modified=datetime.datetime.strptime(var, "%d%m%Y").date())
-#             else :
-#                 return Response({"message":"invalid filter"},status=status.HTTP_404_NOT_FOUND)
+    def get(self,request,filtr,value):
+        user=request.user
+        if user.role!=3:
+            
+            if filtr == "state":
+                loans = Loan.objects.filter(state=value)
+            elif filtr == "created_date":
+                loans=Loan.objects.filter(created_date=datetime.datetime.strptime(value, "%Y-%m-%d").date())
+            elif filtr == "modified_date":
+                loans=Loan.objects.filter(modified_date=datetime.datetime.strptime(value, "%Y-%m-%d").date())
+            else :
+                response={"message":"invalid filter",
+                "valid filter strings": "state  , created_date , modified_date" }
+                return Response(response,status=status.HTTP_404_NOT_FOUND)
+            if not loans.exists():
+                return Response({"message":"No records corresponding to given filter value"},status=status.HTTP_404_NOT_FOUND)
 
-#             serializer = LoanAgentSerializer(loans, many=True)
-#             response = {
-#                 'success': True,
-#                 'status_code': status.HTTP_200_OK,
-#                 'message': 'Successfully fetched loans',
-#                 'loans': serializer.data,
+            serializer = self.serializer_class(loans, many=True)
+            response = {
+                'success': True,
+                'status_code': status.HTTP_200_OK,
+                'message': 'Successfully fetched loans based on filter',
+                'loans': serializer.data,
 
-#             }
-#             return Response(response, status=status.HTTP_200_OK)
-#         return Response(status=status.HTTP_401_UNAUTHORIZED)
+            }
+            return Response(response, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+class CustomerFilterView(APIView):
+    permission_classes=(IsAuthenticated,)
+    serializer_class=LoanCustomerSerializer
     
-#     def post(self,request):
-#         user=request.user
-#         if user.role==2:
-#             serializer=self.serializer_class(data=request.data,context={'request':request})
-#             valid=serializer.is_valid(raise_exception=True)
 
-#             if valid:
-#                 serializer.save(agentId=request.user)
-#                 status_code=status.HTTP_200_OK
-#                 response = {
-#                 'success': True,
-#                 'status_code': status_code,
-#                 'message': 'Successfully created loan request',
-#                 'loan': serializer.data,
-                
-                
+    def get(self,request,filtr,value):
+        user=request.user
+        if user.role==3:
 
-#             }
-#                 return Response(response,status=status_code)
-#             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
-#         return Response(status=status.HTTP_401_UNAUTHORIZED)
+            if filtr == "state":
+                loans = Loan.objects.filter(customerId=user.id,state=value)
+            elif filtr == "created_date":
+                loans=Loan.objects.filter(customerId=user.id,created_date=datetime.datetime.strptime(value, "%Y-%m-%d").date())
+            elif filtr == "modified_date":
+                loans=Loan.objects.filter(customerId=user.id,modified_date=datetime.datetime.strptime(value, "%Y-%m-%d").date())
+            else :
+                response={"message":"invalid filter",
+                "valid filter strings": "state  , created_date , modified_date" }
+                return Response(response,status=status.HTTP_404_NOT_FOUND)
+            if not loans.exists():
+                return Response({"message":"No records corresponding to given filter value for the current user"},status=status.HTTP_404_NOT_FOUND)
+
+            serializer = self.serializer_class(loans, many=True)
+            response = {
+                'success': True,
+                'status_code': status.HTTP_200_OK,
+                'message': 'Successfully fetched loans based on filter',
+                'loans': serializer.data,
+
+            }
+            return Response(response, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
             
     
                 

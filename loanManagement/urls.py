@@ -12,7 +12,9 @@ from .views import (
     AgentLoanView,
     AgentLoanDetailView,
     AdminLoanView,
-    AdminLoanDetailView
+    AdminLoanDetailView,
+    AdminAgentFilterView,
+    CustomerFilterView
 )
 
 urlpatterns = [
@@ -27,7 +29,9 @@ urlpatterns = [
     path('agent/loan-detail/<int:pk>', AgentLoanDetailView.as_view() ),
     path('admin/loan', AdminLoanView.as_view() ),
     path('admin/loan-detail/<int:pk>', AdminLoanDetailView.as_view() ),
-    # path('admin-agent/loan-search/<str:filter_by>/<str:variable>', AdminLoanDetailView.as_view() ),
+    path('admin-agent/loan-search/<str:filtr>/<str:value>', AdminAgentFilterView.as_view() ),
+    path('customer/loan-search/<str:filtr>/<str:value>', CustomerFilterView.as_view() ),
+
 
 
 ]
