@@ -36,7 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_date = models.DateTimeField(default=timezone.now)
     modified_date = models.DateTimeField(default=timezone.now)
     password=models.CharField(max_length=100)
-
+    jwt_secret = models.UUIDField(default=uuid.uuid4)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -45,6 +45,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def jwt_get_secret_key(self):
+        return self.jwt_secret
 
 
 class Loan(models.Model):

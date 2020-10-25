@@ -1,3 +1,4 @@
+import uuid
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.views import APIView
@@ -399,7 +400,15 @@ class CustomerFilterView(APIView):
             return Response(response, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-
-            
+class UserLogoutView(APIView):
+    """
+    Use this endpoint to log out all sessions for a given user.
+    """
+    permission_classes = (IsAuthenticated,)
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        user.jwt_secret = uuid.uuid4()
+        user.save()
+        return Response({"message":"user successfully logged out"},status=status.HTTP_204_NO_CONTENT)       
     
                 
