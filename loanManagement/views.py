@@ -7,6 +7,9 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from django.http import Http404
 from rest_framework.decorators import api_view
+import datetime
+from django.utils import timezone
+
 
 from .serializers import (
     UserRegistrationSerializer,
@@ -331,5 +334,54 @@ class AdminLoanDetailView(APIView):
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
+# class AgentLoanView(APIView):
+#     permission_classes=(IsAuthenticated,)
+#     serializer_class=LoanAgentSerializer
 
+#     def get(self,request,filtr,var):
+#         user=request.user
+#         if user.role!=3:
+#             if filtr == "state":
+#                 loans = Loan.objects.filter(state=var)
+#             elif filtr == "date_of_creation":
+#                 loans=Loan.objects.filter(date_created=datetime.datetime.strptime(var, "%d%m%Y").date())
+#             elif filtr == "date_of_modification":
+#                 loans=Loan.objects.filter(date_modified=datetime.datetime.strptime(var, "%d%m%Y").date())
+#             else :
+#                 return Response({"message":"invalid filter"},status=status.HTTP_404_NOT_FOUND)
+
+#             serializer = LoanAgentSerializer(loans, many=True)
+#             response = {
+#                 'success': True,
+#                 'status_code': status.HTTP_200_OK,
+#                 'message': 'Successfully fetched loans',
+#                 'loans': serializer.data,
+
+#             }
+#             return Response(response, status=status.HTTP_200_OK)
+#         return Response(status=status.HTTP_401_UNAUTHORIZED)
+    
+#     def post(self,request):
+#         user=request.user
+#         if user.role==2:
+#             serializer=self.serializer_class(data=request.data,context={'request':request})
+#             valid=serializer.is_valid(raise_exception=True)
+
+#             if valid:
+#                 serializer.save(agentId=request.user)
+#                 status_code=status.HTTP_200_OK
+#                 response = {
+#                 'success': True,
+#                 'status_code': status_code,
+#                 'message': 'Successfully created loan request',
+#                 'loan': serializer.data,
+                
+                
+
+#             }
+#                 return Response(response,status=status_code)
+#             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+#         return Response(status=status.HTTP_401_UNAUTHORIZED)
+            
+    
                 

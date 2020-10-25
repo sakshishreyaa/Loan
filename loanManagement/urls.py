@@ -27,4 +27,7 @@ urlpatterns = [
     path('agent/loan-detail/<int:pk>', AgentLoanDetailView.as_view() ),
     path('admin/loan', AdminLoanView.as_view() ),
     path('admin/loan-detail/<int:pk>', AdminLoanDetailView.as_view() ),
+    # path('admin-agent/loan-search/<str:filter_by>/<str:variable>', AdminLoanDetailView.as_view() ),
+
+
 ]

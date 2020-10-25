@@ -4,6 +4,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.utils import timezone
 from .managers import CustomUserManager
+import datetime
 
 # User model
 class User(AbstractBaseUser, PermissionsMixin):
@@ -59,6 +60,9 @@ class Loan(models.Model):
     amount_required = models.IntegerField()
     tenure=models.IntegerField()
     interest=models.FloatField()
+    created_date=models.DateField(auto_now_add=True)
+    modified_date=models.DateField(auto_now=True)
+
 
     def __str__(self):
         return self.customerId
