@@ -93,22 +93,57 @@ class LoanAgentSerializer(serializers.ModelSerializer):
         name=data.first_name+data.last_name
         return name
     
-
+    
 
 
 
 
 class LoanCustomerSerializer(serializers.ModelSerializer):
-    
+    agent_name=serializers.SerializerMethodField('get_agent_name')
+    customer_name=serializers.SerializerMethodField('get_customer_name')
+    EMI=serializers.SerializerMethodField()
+
+
     class Meta:
         model = Loan
-        fields=['customerId','agentId','amount_required','tenure','interest','state']
+        fields=['customer_name','agent_name','loan_amount','tenure','interest','state','EMI']
         #read_only_fields=['customerId','agentId','amount_required','tenure','interest','state']
+    
+    def get_agent_name(self,obj):
+        pk=obj.agentId_id
+        data=User.objects.get(pk=pk)
+        name=data.first_name+data.last_name
+        return name   
+    def get_customer_name(self,obj):
+        pk=obj.customerId_id
+        data=User.objects.get(pk=pk)
+        name=data.first_name+data.last_name
+        return name
+    def get_EMI(self,obj):
+        if obj.state=="Approved":
+            return obj.EMI()
+        return "Not Applicable"
 
 class LoanAdminSerializer(serializers.ModelSerializer):
+    LTV_ratio=serializers.SerializerMethodField()
+    agent_name=serializers.SerializerMethodField('get_agent_name')
+    customer_name=serializers.SerializerMethodField('get_customer_name')
     
     class Meta:
         model = Loan
         fields='__all__'
-        read_only_fields=['customerId','agentId','amount_required','tenure','interest']
+        read_only_fields=['customer_name','agent_name','loan_amount','tenure','interest','EMI']
+
+    def get_LTV_ratio(self,obj):
+        return obj.LTV_ratio()
+    def get_agent_name(self,obj):
+        pk=obj.agentId_id
+        data=User.objects.get(pk=pk)
+        name=data.first_name+data.last_name
+        return name   
+    def get_customer_name(self,obj):
+        pk=obj.customerId_id
+        data=User.objects.get(pk=pk)
+        name=data.first_name+data.last_name
+        return name
         

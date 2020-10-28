@@ -205,7 +205,7 @@ class AgentLoanView(APIView):
             }
                 return Response(response,status=status_code)
             return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        return Response({"message":"You ar not authorized to perform this action"},status=status.HTTP_401_UNAUTHORIZED)
             
         
 
@@ -404,6 +404,8 @@ class UserLogoutView(APIView):
     """
     Use this endpoint to log out all sessions for a given user.
     """
+    # the secret key used for generating jwt tokens is changed evry time a user logout so the same token cannot
+    # be used for authentication after logout 
     permission_classes = (IsAuthenticated,)
     def post(self, request, *args, **kwargs):
         user = request.user
