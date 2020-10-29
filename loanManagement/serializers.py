@@ -62,17 +62,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
+        
 
-        # def update(self, instance, validated_data):
-        #     """ 
-        #     Update and return an existing user instance, given the validated data.
-        #     """
-        #     instance.email = validated_data.get('email', instance.email)
-        #     instance.role = validated_data.get('role', instance.role)
-        #     instance.first_name = validated_data.get('first_name', instance.first_name)
-        #     instance.last_name = validated_data.get('last_name', instance.last_name)
-        #     instance.save()
-        #     return instance
 class LoanAgentSerializer(serializers.ModelSerializer):
     agent_name=serializers.SerializerMethodField('get_agent_name')
     customer_name=serializers.SerializerMethodField('get_customer_name')

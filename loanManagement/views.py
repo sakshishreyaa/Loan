@@ -93,6 +93,7 @@ class UserListView(APIView):
 
             }
             return Response(response, status=status.HTTP_200_OK)
+    
 class UserDetailView(APIView):
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
@@ -105,13 +106,22 @@ class UserDetailView(APIView):
 
     def get(self, request,pk):
         user = request.user
-        if user.role != 1:
-            response = {
+        if user.role == 3:
+            if user.id == pk:
+                response = {
+                'success': True,
+                'status_code': status.HTTP_200_OK,
+                'message': 'Successfully fetched user',
+                'user': serializer.data
+                }
+                return Response(response, status=status.HTTP_200_OK)
+            else:
+                response = {
                 'success': False,
-                'status_code': status.HTTP_403_FORBIDDEN,
+                'status_code': status.HTTP_401_UNAUTHORIZED,
                 'message': 'You are not authorized to perform this action'
-            }
-            return Response(response, status.HTTP_403_FORBIDDEN)
+                }
+                return Response(response, status.HTTP_401_UNAUTHORIZED)
         else:
 
             data = self.get_object(pk)

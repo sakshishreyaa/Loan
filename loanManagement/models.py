@@ -33,9 +33,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(auto_now_add=True)
     is_staff= models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    is_deleted = models.BooleanField(default=False)
-    created_date = models.DateTimeField(default=timezone.now)
-    modified_date = models.DateTimeField(default=timezone.now)
+    modified_date = models.DateTimeField(auto_now=True)
     password=models.CharField(max_length=100)
     jwt_secret = models.UUIDField(default=uuid.uuid4)
 
