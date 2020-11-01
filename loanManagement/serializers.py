@@ -10,6 +10,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
+            'first_name',
+            'last_name',
             'email',
             'password'
         )
@@ -24,7 +26,6 @@ class UserLoginSerializer(serializers.Serializer):
     access = serializers.CharField(read_only=True)
     refresh = serializers.CharField(read_only=True)
     role = serializers.CharField(read_only=True)
-
     def create(self, validated_date):
         pass
 
@@ -36,8 +37,8 @@ class UserLoginSerializer(serializers.Serializer):
         password = data['password']
         user = authenticate(email=email, password=password)
 
-        if user is None:
-            raise serializers.ValidationError("Invalid login credentials")
+        # if user is None:
+        #     raise serializers.ValidationError("Invalid login credentials")
 
         try:
             refresh = RefreshToken.for_user(user)
@@ -57,13 +58,17 @@ class UserLoginSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("Invalid login credentials")
 
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
-        
+        read_only_fields=['password','jwt_secret','groups','user_permissions','last_login']
 
+class UserSerializerCustomer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name','last_name','email']
+        
 class LoanAgentSerializer(serializers.ModelSerializer):
     agent_name=serializers.SerializerMethodField('get_agent_name')
     customer_name=serializers.SerializerMethodField('get_customer_name')
@@ -83,22 +88,15 @@ class LoanAgentSerializer(serializers.ModelSerializer):
         data=User.objects.get(pk=pk)
         name=data.first_name+data.last_name
         return name
-    
-    
-
-
-
 
 class LoanCustomerSerializer(serializers.ModelSerializer):
     agent_name=serializers.SerializerMethodField('get_agent_name')
     customer_name=serializers.SerializerMethodField('get_customer_name')
     EMI=serializers.SerializerMethodField()
 
-
     class Meta:
         model = Loan
-        fields=['customer_name','agent_name','loan_amount','tenure','interest','state','EMI']
-        #read_only_fields=['customerId','agentId','amount_required','tenure','interest','state']
+        fields='__all__'
     
     def get_agent_name(self,obj):
         pk=obj.agentId_id
@@ -123,7 +121,7 @@ class LoanAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Loan
         fields='__all__'
-        read_only_fields=['customer_name','agent_name','loan_amount','tenure','interest','EMI']
+        read_only_fields=['customer_name','agent_name','loan_amount','tenure','interest','EMI','asset_value','customerId','agentId']
 
     def get_LTV_ratio(self,obj):
         return obj.LTV_ratio()

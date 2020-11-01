@@ -19,7 +19,7 @@ from rest_framework import urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('loanManagement/auth/', include('loanManagement.urls')),
+    path('loanManagement/', include('loanManagement.urls')),
     path('rest/', include('rest_framework.urls'))
 
 ]
