@@ -1,8 +1,31 @@
 version : '3'
 
 services:
+  db:
+    image: mysql:5.7
+    ports:
+      - '3306:3306'
+    environment:
+       MYSQL_DATABASE: 'loan'
+       MYSQL_USER: 'root'
+       MYSQL_PASSWORD: 'pass'
+       MYSQL_ROOT_PASSWORD: 'pass'
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: bash -c " python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     ports:
       - 8000:8000
+    volumes:
+      - .:/d
+    depends_on:
+      - db
+
+  # frontend:
+  #   build: .
+
+  #   command: npm run build
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - web
+

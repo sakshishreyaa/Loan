@@ -45,8 +45,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-    def jwt_get_secret_key(self):
-        return self.jwt_secret
+def jwt_get_secret_key(User):
+    return User.jwt_secret
 
 
 class Loan(models.Model):

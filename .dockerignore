@@ -1,0 +1,8 @@
+venv
+.git
+.vscode
+*.pyc
+__pycache__
+db.sqlite3
+media_cdn
+Readme.md

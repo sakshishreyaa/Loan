@@ -14,7 +14,6 @@ from pathlib import Path
 import os
 
 from datetime import timedelta
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'za+six14dm4ahl6-7eff$_w3%(r10&f1aw$-23ri$kyz2e5o3y'
 
+SECRET_KEY = 'za+six14dm4ahl6-7eff$_w3%(r10&f1aw$-23ri$kyz2e5o3y'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Set auth user to the new user created
 AUTH_USER_MODEL = 'loanManagement.User'
@@ -81,7 +80,7 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': False,
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
+    'SIGNING_KEY': 'models.jwt_get_secret_key',
     'VERIFYING_KEY': None,
     'AUTH_HEADER_TYPES': ('JWT',),
     'USER_ID_FIELD': 'id',
@@ -123,11 +122,22 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql', 
         'NAME': 'loan',
         'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',   
-        'PORT': '3306',
+        'PASSWORD': 'pass',
+        'HOST': 'db',
+        'PORT': 3306,   
+        
     }
 } 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql', 
+#         'NAME': 'loan',
+#         'USER': 'mysql',
+#         'PASSWORD': 'root',
+#         'HOST': 'db',   
+#         'PORT': 3306,
+#     }
+# }
 
 import sys
 if 'test' in sys.argv or 'test_coverage' in sys.argv: #Covers regular testing and django-coverage

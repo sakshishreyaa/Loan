@@ -10,6 +10,7 @@ from .views import (
     LoanListView,
     LoanDetailView,
     LoanFilterView,
+    UserLogoutView
    
 )
 
@@ -24,4 +25,5 @@ urlpatterns = [
     path('loans/', LoanListView.as_view(),name='loanlist' ),
     path('loans/<int:pk>/', LoanDetailView.as_view(),name='loandetail' ),
     path('loan-filter/<str:filtr>/<str:value>/', LoanFilterView.as_view() ,name='loanfilter' ),
+    path('logout/',UserLogoutView.as_view() ,name='logout')
 ]

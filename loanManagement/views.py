@@ -26,6 +26,11 @@ from .models import User,Loan
 
 
 class UserRegistrationView(APIView):
+    """
+    Use this endpoint to register a new user : role is customer byy default
+    which can be changed to agent role by an admin to grant agentprivileges to a user.
+    """
+
     serializer_class = UserRegistrationSerializer
     permission_classes = (AllowAny, )
 
@@ -46,6 +51,9 @@ class UserRegistrationView(APIView):
 
             return Response(response, status=status_code)
 class UserLoginView(APIView):
+    """
+    Use this endpoint to log in an existing user.
+    """
     serializer_class = UserLoginSerializer
     permission_classes = (AllowAny, )
 
@@ -70,7 +78,21 @@ class UserLoginView(APIView):
 
             return Response(response, status=status_code)
 
+class UserLogoutView(APIView):
+    """
+    Use this endpoint to log out all sessions for a given user.
+    """
+    permission_classes = (IsAuthenticated,)
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        user.jwt_secret = uuid.uuid4()
+        user.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 class UserListView(APIView):
+    """
+    Use this endpoint to get list of users : only for admin and agent roles.
+    """
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -96,6 +118,10 @@ class UserListView(APIView):
             return Response(response, status=status.HTTP_200_OK)
     
 class UserDetailView(APIView):
+    """
+    Use this endpoint to get user details and edit users :only for admin and agent.
+    Customers can acces only their own user details and edit only specific fields such as name and email.
+    """
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -190,6 +216,11 @@ class UserDetailView(APIView):
         
         
 class LoanListView(APIView):
+    """
+    Use this endpoint to get list of all loans : admin and agent.
+    create a loan request : only agent can do this.
+    customers get list of their own loans only.
+    """
     permission_classes=(IsAuthenticated,)
     # customer
 
@@ -258,6 +289,11 @@ class LoanListView(APIView):
 
 
 class LoanDetailView(APIView):
+    """
+    Use this endpoint to get loan details :only for admin and agent.
+    admin can change only sttate of loan i.e aprove or reject a loan.
+    agent can change any loan details except state of loan and only if loan is not approved 
+    """
     permission_classes=(IsAuthenticated,)
 
     def get_object(self,pk):
@@ -346,6 +382,10 @@ class LoanDetailView(APIView):
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 class LoanFilterView(APIView):
+    """
+    Use this endpoint to get loans based on specific filters : admin and agent gets every loan specified by 
+    filters and customers get their own loans only.
+    """
     permission_classes=(IsAuthenticated,)
 
     def get(self,request,filtr,value):

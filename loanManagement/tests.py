@@ -8,7 +8,7 @@ from rest_framework.test import APIRequestFactory ,APITestCase, URLPatternsTestC
 from .models import User,Loan
 from datetime import date
         
-class LoanApiTest(APITestCase, URLPatternsTestCase):
+class LoanApiTestCase(APITestCase, URLPatternsTestCase):
     """ Test module for Loan Manageent api """
 
     urlpatterns = [
@@ -400,3 +400,19 @@ class LoanApiTest(APITestCase, URLPatternsTestCase):
         values=[i['customerId'] for i in response_data['loan'] ]
         self.assertTrue(self.customer.id in values)
         self.assertFalse(self.customer2.id in values)
+
+    def test_logout(self):
+        """Test user can logout of all sessions """
+        response,response_data=self.token_setup('cust@test.com','cust')
+        token = response_data['access']
+        
+        # Test customer can logout safely from alll sessions
+        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + token)
+        response =self.client.post(reverse('logout'))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        response,response_data=self.token_setup('cust@test.com','cust')
+        token2 = response_data['access']
+        self.assertNotEqual(token,token2)
+        #test previous token before logout is not valid even though it did not expire
+        self.assertFalse(self.client.credentials(HTTP_AUTHORIZATION='JWT ' + token))
